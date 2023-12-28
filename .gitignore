@@ -1,3 +1,4 @@
 # Exclude data & environment variables from source control
 /data/
-#.env # uncomment this line when introducing the secret environment variables to the '.env' file to avoid commiting the REDCap project URL & token to source control
+# uncomment following line when introducing the secret environment variables in the '.env' file to avoid commiting the REDCap project URL & token to source control
+#.env
