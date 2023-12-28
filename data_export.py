@@ -3,27 +3,36 @@ import requests
 import pandas as pd
 import numpy as np
 from io import StringIO
+import os
+from dotenv import load_dotenv, find_dotenv
+
+# Start by retrieving the RECap project URL and Token from a secret '.env' file
+# (see brief example at: https://drivendata.github.io/cookiecutter-data-science/#keep-secrets-and-configuration-out-of-version-control)
+dotenv_path = find_dotenv() # Find .env automagically by walking up directories until it's found
+load_dotenv(dotenv_path) # Load up the entries as environment variables
+database_url = os.environ.get("DATABASE_URL")
+redcap_token = os.environ.get("REDCAP_TOKEN")
 
 # Metadata (to create variable dictionary)
 metadata_request = {
-    'token': token,
+    'token': redcap_token,
     'content': 'metadata',
     'format': 'csv',
     'returnFormat': 'csv'
 }
-metadata = requests.post(url,data=metadata_request)
+metadata = requests.post(database_url,data=metadata_request)
 metadata = pd.read_csv(StringIO(metadata.text))
 # Obtain list with all form names
 form_names = metadata.form_name.unique().tolist()
 
 # Form-Event Mappings
 formEventMapping_request = {
-    'token': token,
+    'token': redcap_token,
     'content': 'formEventMapping',
     'format': 'csv',
     'returnFormat': 'csv'
 }
-formEventMapping = requests.post(url,data=formEventMapping_request)
+formEventMapping = requests.post(database_url,data=formEventMapping_request)
 formEventMapping = pd.read_csv(StringIO(formEventMapping.text))
 # Dictionary to map forms with events
 form_event_dict = {}
@@ -46,7 +55,7 @@ for form_name in form_names:
 
     # Dictionary with the preset settings that will be requested to REDCap
     data_request = {
-        'token': token,
+        'token': redcap_token,
         'content': 'record',
         'action': 'export',
         'format': 'csv',
@@ -63,7 +72,7 @@ for form_name in form_names:
     data_request.update(form_request)
     data_request.update(events_request)
     # Now we perform the call to the REDCap API using the created request dictionary 'data_request'
-    r = requests.post(url, data=data_request)
+    r = requests.post(database_url, data=data_request)
 
     # Import the obtained REDCap data into pandas dataframe
     # before creating the dataframe we check whether the current form has any content
