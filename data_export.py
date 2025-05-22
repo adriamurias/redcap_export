@@ -5,13 +5,14 @@ import numpy as np
 from io import StringIO
 import os
 from dotenv import load_dotenv, find_dotenv
+from sqlalchemy import create_engine
 
 # Start by retrieving the RECap project URL and Token from a secret '.env' file
 # (see brief example at: https://drivendata.github.io/cookiecutter-data-science/#keep-secrets-and-configuration-out-of-version-control)
 dotenv_path = find_dotenv() # Find .env automagically by walking up directories until it's found
 load_dotenv(dotenv_path) # Load up the entries as environment variables
-database_url = os.environ.get("DATABASE_URL")
-redcap_token = os.environ.get("REDCAP_TOKEN")
+database_url = os.environ.get("redcap_url")
+redcap_token = os.environ.get("redcap_token")
 
 # Metadata (to create variable dictionary)
 metadata_request = {
@@ -34,6 +35,7 @@ formEventMapping_request = {
 }
 formEventMapping = requests.post(database_url,data=formEventMapping_request)
 formEventMapping = pd.read_csv(StringIO(formEventMapping.text))
+
 # Dictionary to map forms with events
 form_event_dict = {}
 for form_name in form_names:
